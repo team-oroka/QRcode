@@ -1,10 +1,83 @@
 <!DOCTYPE html>
-<html>
-  <head>
-  </head>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>バトルフィールド・コード — マニュアル</title>
+<style>
+  :root{--bg:#0f1720;--card:#0b1220;--accent:#ff6b6b;--muted:#98a0b3;--text:#e6eef6}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo, sans-serif;background:linear-gradient(180deg,#071023 0%,#07142a 100%);color:var(--text);line-height:1.6}
+  .wrap{max-width:900px;margin:36px auto;padding:28px;background:rgba(255,255,255,0.02);border-radius:12px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
+  h1{margin:0 0 8px;font-size:1.6rem}
+  h2{margin:22px 0 8px;font-size:1.1rem;color:var(--accent)}
+  p{margin:8px 0;color:var(--text)}
+  .muted{color:var(--muted);font-size:0.95rem}
+  pre{background:#071226;padding:12px;border-radius:8px;color:#cfe9ff;overflow:auto}
+  .kbd{display:inline-block;padding:4px 8px;border-radius:6px;background:#0b1420;border:1px solid rgba(255,255,255,0.04);font-weight:600}
+  ul{margin:8px 0 8px 20px}
+  .range{font-family:monospace;background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;display:inline-block}
+  footer{margin-top:20px;color:var(--muted);font-size:0.9rem}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>バトルフィールド・コード — マニュアル</h1>
+    <p class="muted">2人対戦のターン制ドットバトル。攻撃側と防御側が交互に座標を指定して戦います。</p>
 
-  <body>
-    <h1>test</h1>
-    <p>hoge</p>
-  </body>
+    <h2>あらすじ</h2>
+    <p>QRコードの世界で、攻撃側はQRコードを破壊して読み取れなくすることを目指し、防御側はそれを守り抜きます。両者は座標を指定して範囲攻撃・範囲防御を行い、全5ターンで勝敗を決めます。</p>
+
+    <h2>操作方法</h2>
+    <ul>
+      <li><span class="kbd">矢印キー</span>：カーソル移動</li>
+      <li><span class="kbd">スペース</span>：攻撃／防御を実行</li>
+      <li>ターンごとに操作を交代します（プレイヤー交代プレイ）</li>
+    </ul>
+
+    <h2>ゲームの流れ（ターン）</h2>
+    <ol>
+      <li>攻撃側が中心座標を選び、攻撃を実行（1回）</li>
+      <li>防御側が防御座標を3回選んで実行（3回）</li>
+      <li>これを1ターン分としてカウントし、全5ターン終了で判定</li>
+    </ol>
+
+    <h2>勝敗条件</h2>
+    <p>5ターン終了時にQRコードが読み取れなくなっている側が負け。読み取れる状態を保てた方が勝利します。</p>
+
+    <h2>攻撃側 — 攻撃ルール</h2>
+    <p>攻撃側は、指定した中心座標を基準に次の形の範囲を攻撃します：</p>
+    <div class="range">
+      <pre>
+□□　□□
+□□　□□
+　　□　　
+□□　□□
+□□　□□
+      </pre>
+    </div>
+    <p>図中の「□」が攻撃対象（中心は表示上位置の座標ですが、攻撃対象は図の□部分になります）。攻撃は1ターンに1回のみ実行可能です。</p>
+
+    <h2>防御側 — 防御ルール</h2>
+    <p>防御側は中心を含む<strong>3×3</strong>範囲で防御（修復／阻止）できます：</p>
+    <div class="range"><pre>
+000
+000
+000
+    </pre></div>
+    <p>防御は1ターンに3回まで実行できます。防御は攻撃の阻止（攻撃を無効化）および既に攻撃された箇所の修復の両方に働きます。</p>
+
+    <h2>データの扱い（ざっくり）</h2>
+    <p class="muted">ゲーム内部では座標データをメモリ（スロット）に保存して管理しています。プレイ中は毎ターンのデータだけを参照し、不要な古いデータは上書きされます。</p>
+
+    <h2>注意事項</h2>
+    <ul>
+      <li>同一スロットへの書き込みは上書きになります。データ管理に注意してください。</li>
+      <li>ターンの進行は交互操作が前提です。1台の端末で交代して遊んでください。</li>
+    </ul>
+
+    <footer>
+      <div>© バトルフィールド・コード（開発中）</div>
+    </footer>
+  </div>
+</body>
 </html>
