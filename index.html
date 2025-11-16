@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>防衛成功！</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
   html, body {
@@ -14,7 +14,7 @@
     height: 100%;
   }
 
-  /* 中央メッセージ */
+  /* 中央メッセージ（アニメ付き） */
   .message {
     position: absolute;
     top: 50%;
@@ -22,23 +22,39 @@
     transform: translate(-50%, -50%);
     text-align: center;
     color: #fff;
-    text-shadow: 0 0 20px #ff0, 0 0 40px #ff0;
     font-family: "Arial Black", sans-serif;
     z-index: 10;
-    width: 90%;
+    width: 95%;
+    opacity: 0;
+    animation: fadeIn 2s ease-out forwards, float 3s ease-in-out infinite;
   }
 
   .message h1 {
-    font-size: 4rem;
+    font-size: 4.5rem;
     margin: 0;
+    text-shadow: 0 0 30px #ff0, 0 0 60px #ff0;
   }
 
   .message p {
-    font-size: 2.5rem;
+    font-size: 2.7rem;
     margin-top: 20px;
+    text-shadow: 0 0 20px #fff;
   }
 
-  /* SNSボタン */
+  /* フェードイン */
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translate(-50%, -60%); }
+    100% { opacity: 1; transform: translate(-50%, -50%); }
+  }
+
+  /* ふわふわ揺れる */
+  @keyframes float {
+    0% { transform: translate(-50%, -50%); }
+    50% { transform: translate(-50%, -53%); }
+    100% { transform: translate(-50%, -50%); }
+  }
+
+  /* 可愛いシェアボタン */
   .share-buttons {
     position: absolute;
     bottom: 40px;
@@ -50,19 +66,21 @@
   }
 
   .share-buttons a {
-    padding: 15px 25px;
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    border: 2px solid #fff;
-    border-radius: 10px;
+    padding: 18px 30px;
+    background: #ff69b4;
+    color: white;
+    border: none;
+    border-radius: 40px;
     text-decoration: none;
-    font-size: 1.2rem;
-    text-shadow: 0 0 10px #fff;
-    transition: transform 0.2s;
+    font-size: 1.4rem;
+    font-weight: bold;
+    box-shadow: 0 0 15px #ff69b4;
+    transition: all 0.2s;
   }
 
   .share-buttons a:hover {
     transform: scale(1.15);
+    box-shadow: 0 0 25px #fff;
   }
 </style>
 </head>
@@ -71,20 +89,27 @@
 
 <canvas id="fireworks"></canvas>
 
+<!-- メインメッセージ -->
 <div class="message">
   <h1>🎉 防衛成功！ 🎉</h1>
   <p>おめでとう！！</p>
 </div>
 
+<!-- シェアボタン -->
 <div class="share-buttons">
-  <a id="tweet" target="_blank">Twitterでシェア</a>
+  <a id="tweet" target="_blank">X（Twitter）でシェア</a>
   <a id="line" target="_blank">LINEでシェア</a>
 </div>
 
+<!-- BGM（自動再生） -->
+<audio id="bgm" autoplay loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_76e1d5c996.mp3?filename=fireworks-105423.mp3" type="audio/mpeg">
+</audio>
+
 <script>
-/* ------------------------------
-      SNSシェアリンク設定
------------------------------- */
+/* --------------------------------
+        SNSボタンリンク処理
+-----------------------------------*/
 const pageUrl = encodeURIComponent(location.href);
 const text = encodeURIComponent("防衛成功したよ！");
 
@@ -95,9 +120,9 @@ document.getElementById("line").href =
   `https://line.me/R/msg/text/?${text}%20${pageUrl}`;
 
 
-/* ------------------------------
-         花火アニメ
------------------------------- */
+/* --------------------------------
+        花火アニメ（強化版）
+-----------------------------------*/
 const canvas = document.getElementById("fireworks");
 const ctx = canvas.getContext("2d");
 
@@ -115,41 +140,45 @@ const particles = [];
 function Firework() {
   this.x = Math.random() * w;
   this.y = h;
+  this.targetX = Math.random() * w;
   this.targetY = Math.random() * h * 0.4;
-  this.speed = 5 + Math.random() * 3;
+  this.speed = 6 + Math.random() * 4;
   this.exploded = false;
+  this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
 }
 
-function Particle(x, y) {
+function Particle(x, y, color) {
   this.x = x;
   this.y = y;
   this.angle = Math.random() * Math.PI * 2;
-  this.speed = Math.random() * 5 + 2;
+  this.speed = Math.random() * 6 + 3;
   this.alpha = 1;
+  this.color = color;
 }
 
 function update() {
   ctx.fillStyle = "rgba(0,0,0,0.2)";
   ctx.fillRect(0, 0, w, h);
 
-  if (Math.random() < 0.05) fireworks.push(new Firework());
+  if (Math.random() < 0.08) fireworks.push(new Firework());
 
   // Fireworks
   for (let i = fireworks.length - 1; i >= 0; i--) {
     const f = fireworks[i];
-    f.y -= f.speed;
+    f.y -= f.speed * 0.8;
+    f.x += (f.targetX - f.x) * 0.02;
 
     ctx.beginPath();
     ctx.arc(f.x, f.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = "yellow";
+    ctx.fillStyle = f.color;
     ctx.fill();
 
     if (f.y <= f.targetY && !f.exploded) {
       f.exploded = true;
 
-      // create particles
-      for (let j = 0; j < 50; j++) {
-        particles.push(new Particle(f.x, f.y));
+      // particles
+      for (let j = 0; j < 80; j++) {
+        particles.push(new Particle(f.x, f.y, f.color));
       }
 
       fireworks.splice(i, 1);
@@ -159,13 +188,14 @@ function update() {
   // Particles
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
+
     p.x += Math.cos(p.angle) * p.speed;
     p.y += Math.sin(p.angle) * p.speed;
     p.alpha -= 0.02;
 
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,100,${p.alpha})`;
+    ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = p.color.replace("60%)", `60%, ${p.alpha})`);
     ctx.fill();
 
     if (p.alpha <= 0) particles.splice(i, 1);
